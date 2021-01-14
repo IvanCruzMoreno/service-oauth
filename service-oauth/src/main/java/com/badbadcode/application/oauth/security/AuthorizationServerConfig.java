@@ -2,9 +2,12 @@ package com.badbadcode.application.oauth.security;
 
 import java.util.Arrays;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -21,6 +24,8 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter{
 
 	@Autowired
+	private Environment enviroment;
+	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -36,8 +41,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-		clients.inMemory().withClient("frontendapp")
-						  .secret(passwordEncoder.encode("12345"))
+		clients.inMemory().withClient(enviroment.getProperty("config.security.oauth.client.id"))
+						  .secret(passwordEncoder.encode(enviroment.getProperty("config.security.oauth.client.secret")))
 						  .scopes("read", "write")
 						  .authorizedGrantTypes("password", "refresh_token")
 						  .accessTokenValiditySeconds(3600)
@@ -61,7 +66,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-		jwtAccessTokenConverter.setSigningKey("llave_secreta");
+		jwtAccessTokenConverter.setSigningKey(enviroment.getProperty("config.security.oauth.jwt.key"));
 		return jwtAccessTokenConverter;
 	}
 
