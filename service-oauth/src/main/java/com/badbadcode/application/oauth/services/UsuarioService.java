@@ -48,4 +48,9 @@ public class UsuarioService implements UserDetailsService, IUsuarioService {
 		return clientFeign.findByUsername(username);
 	}
 
+	@Override
+	public Usuario update(Usuario usuario, Long id) {
+		return clientFeign.update(usuario, id);
+	}
+
 }
